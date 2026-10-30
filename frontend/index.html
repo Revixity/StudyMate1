@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudyMate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--paper:#f6f7fb;--card:#fff;--mark:#ffe066;--margin:#d64045;--slate:#5a6377;--line:#dde1ea;
+--head:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;--body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;height:100vh;height:100dvh;display:grid;grid-template-columns:290px 1fr;overflow:hidden;
+font:16px/1.55 var(--body);color:var(--ink);background:var(--paper)}
+body.panel-open{grid-template-columns:290px 1fr minmax(340px,38%)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.side{background:var(--card);border-right:1px solid var(--line);padding:22px 18px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.brand{font:700 1.7rem/1 var(--head);margin:0;width:fit-content;background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 2px}
+.tag{margin:6px 0 0;color:var(--slate);font-size:.9rem}
+label,.lbl{font-weight:500;font-size:.9rem;display:block;margin-bottom:4px}
+select,input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:500}
+.btn.ghost{background:#fff;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px}
+.drop{display:block;border:2px dashed #b7bfd0;border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:var(--slate)}
+.drop:hover,.drop.over{border-color:var(--ink);background:#eef1f8}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop:focus-within{outline:3px solid var(--ink);outline-offset:2px}
+.status{font-size:.92rem;color:var(--slate);min-height:1.4em}
+.status.ok{color:var(--ink);font-weight:500}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.9rem}
+.files li{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:6px;background:var(--paper)}
+.files span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.files span:last-child{color:var(--slate);white-space:nowrap}
+main{display:flex;flex-direction:column;min-width:0;min-height:0;height:100%}
+.top{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.top h2{margin:0;font:700 1.25rem var(--head)}
+.top select{width:auto}
+#log{flex:1;min-height:0;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.msg{max-width:min(72ch,92%);line-height:1.6}
+.msg.user{align-self:flex-end;background:var(--ink);color:#fff;padding:10px 14px;border-radius:12px 12px 2px 12px}
+.msg.bot{background:var(--card);border:1px solid var(--line);padding:14px 16px;border-radius:12px 12px 12px 2px}
+.msg p{margin:0 0 .6em}.msg p:last-child{margin:0}
+.msg ul{margin:.3em 0 .6em;padding-left:1.2em}
+.msg code{background:var(--paper);padding:1px 5px;border-radius:4px}
+.msg.refusal{border-left:5px solid var(--margin)}
+.msg.refusal b{color:var(--margin)}
+.ref{border:0;background:var(--mark);color:var(--ink);font-weight:700;font-size:.75rem;min-width:1.4em;height:1.4em;border-radius:3px;cursor:pointer;vertical-align:super;margin:0 1px;padding:0 4px}
+.cites{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.chip{border:0;cursor:pointer;background:linear-gradient(transparent 12%,var(--mark) 12%);padding:3px 10px;border-radius:3px;font-size:.88rem;font-weight:500}
+.chip:hover{background:var(--mark)}
+.empty{margin:auto;max-width:46ch;text-align:center;color:var(--slate)}
+.empty h3{font:700 1.4rem var(--head);color:var(--ink);margin:0 0 6px}
+.eg{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.eg button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;cursor:pointer}
+.eg button:hover{border-color:var(--ink)}
+.interactions{margin-top:16px}
+.interactions h4{font:700 1rem var(--head);margin:0 0 8px}
+.followups{display:flex;flex-wrap:wrap;gap:8px}
+.followups button,.quiz-option{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 11px;cursor:pointer;text-align:left}
+.followups button:hover,.quiz-option:hover:not(:disabled){border-color:var(--ink);background:var(--paper)}
+.quiz{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.quiz p{margin:0 0 10px}
+.quiz-options{display:grid;gap:8px}
+.quiz-option{width:100%}
+.quiz-option.correct{border-color:#237a46;background:#e8f5ec}
+.quiz-option.incorrect{border-color:var(--margin);background:#fff0f0}
+.quiz-feedback{margin-top:10px!important}
+.interaction-note{margin-top:12px!important;color:var(--slate);font-size:.9rem}
+.composer{display:flex;gap:10px;padding:14px 24px 20px;border-top:1px solid var(--line);background:var(--card)}
+.composer input{flex:1;padding:11px 12px}
+.viewer{display:none;flex-direction:column;background:var(--card);border-left:1px solid var(--line);min-width:0;height:100%}
+body.panel-open .viewer{display:flex}
+.vhead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.vhead strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vhead a{font-size:.88rem}
+.excerpt{margin:12px 16px 0;padding:8px 10px;background:linear-gradient(transparent 0,#fff6c2 0);background:#fff6c2;border-left:4px solid var(--mark);font-size:.92rem}
+.vbody{flex:1;min-height:0;padding:12px 16px 16px;display:flex}
+.vbody iframe{flex:1;border:1px solid var(--line);border-radius:8px;width:100%}
+.slide{white-space:pre-wrap;border:1px solid var(--line);border-radius:8px;padding:18px;flex:1;overflow:auto;font-size:1.05rem}
+@media(max-width:900px){
+body,body.panel-open{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+.side{max-height:38vh;border-right:0;border-bottom:1px solid var(--line)}
+.viewer{position:fixed;inset:auto 0 0 0;height:72vh;border-left:0;border-top:2px solid var(--ink);z-index:5}
+.top,#log,.composer{padding-left:14px;padding-right:14px}
+}
+@media(prefers-reduced-motion:no-preference){.msg{animation:in .18s ease-out}@keyframes in{from{opacity:0}to{opacity:1}}}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div><h1 class="brand">StudyMate</h1><p class="tag">Answers only from your own notes, with the page.</p></div>
+  <div>
+    <label for="subject">Subject</label>
+    <select id="subject"></select>
+    <button class="btn ghost" id="newBtn" style="margin-top:8px;width:100%">New subject</button>
+    <form id="newForm" hidden class="row" style="margin-top:8px">
+      <input type="text" id="newName" placeholder="DBMS, Sem 3" aria-label="Subject name" required>
+      <button class="btn" type="submit">Create</button>
+    </form>
+  </div>
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept=".pdf,.pptx" multiple>
+    <b>Upload PDFs or PPTX slides</b><br><span style="font-size:.88rem">Click or drop · Up to 20 MB per file</span>
+  </label>
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+  <ul class="files" id="files"></ul>
+  <button class="btn ghost" id="summaryBtn" type="button" disabled>One page summary</button>
+  <button class="btn ghost" id="demo">Try sample course</button>
+  <p class="tag">P01 · Course-grounded study assistant</p>
+</aside>
+
+<main>
+  <div class="top">
+    <h2 id="title">No subject yet</h2>
+  </div>
+  <div id="log" role="log" aria-live="polite"></div>
+  <form class="composer" id="ask">
+    <input type="text" id="q" aria-label="Your question" placeholder="Ask about your notes, e.g. Explain 3NF with an example" autocomplete="off">
+    <button class="btn" id="send" type="submit">Ask</button>
+  </form>
+</main>
+
+<section class="viewer" id="viewer" aria-label="Source viewer">
+  <div class="vhead"><strong id="vtitle"></strong><span><a id="vopen" target="_blank" rel="noopener">Open file</a> <button class="btn ghost" id="vclose">Close</button></span></div>
+  <p class="excerpt" id="vexcerpt" hidden></p>
+  <div class="vbody" id="vbody"></div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+const state = { sid: null, subjects: [], summaryBusy: false };
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (!r.ok) {
+    let msg = r.statusText;
+    try { msg = (await r.json()).detail || msg; } catch (_) {}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const unit = s => s.type === 'pptx' ? 'slide' : 'p.';
+
+function inline(s, nums) {
+  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[(\d+)\]/g, (m, n) => nums.has(+n) ? `<button type="button" class="ref" data-n="${n}" aria-label="Open source ${n}">${n}</button>` : m);
+}
+function md(text, nums) {
+  let html = '', list = false;
+  for (const ln of esc(text).split('\n')) {
+    const m = ln.match(/^\s*[-*\u2022]\s+(.*)/);
+    if (m) { if (!list) { html += '<ul>'; list = true; } html += `<li>${inline(m[1], nums)}</li>`; }
+    else { if (list) { html += '</ul>'; list = false; } if (ln.trim()) html += `<p>${inline(ln, nums)}</p>`; }
+  }
+  return html + (list ? '</ul>' : '');
+}
+
+function addMsg(cls, html) {
+  const log = $('log');
+  const empty = log.querySelector('.empty'); if (empty) empty.remove();
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls; el.innerHTML = html;
+  log.appendChild(el); log.scrollTop = log.scrollHeight;
+  return el;
+}
+
+function renderEmpty() {
+  const s = state.subjects.find(x => x.id === state.sid);
+  const ready = s && s.pages > 0;
+  $('log').innerHTML = `<div class="empty"><h3>${ready ? 'Ask your notes anything' : 'Start with your notes'}</h3>
+    <p>${ready ? 'Every answer shows the file and page it came from. Questions outside your material get a clear refusal.' : 'Create a subject, then upload its PDFs or slides. They are indexed in seconds.'}</p>
+    ${ready ? '<div class="eg"><button type="button">Explain 3NF with an example</button><button type="button">What are the ACID properties?</button><button type="button">Who won the 2011 cricket world cup?</button></div>' : ''}</div>`;
+}
+
+function renderSide() {
+  const sel = $('subject');
+  sel.innerHTML = state.subjects.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('') || '<option value="">No subjects yet</option>';
+  if (state.sid) sel.value = state.sid;
+  const s = state.subjects.find(x => x.id === state.sid);
+  $('title').textContent = s ? s.name : 'No subject yet';
+  $('files').innerHTML = s ? s.files.map(f => `<li><span title="${esc(f.name)}">${esc(f.name)}</span><span>${f.pages} ${f.type === 'pptx' ? 'slides' : 'pages'}</span></li>`).join('') : '';
+  const st = $('status');
+  st.className = 'status' + (s && s.pages ? ' ok' : '');
+  st.textContent = !s ? 'Create a subject to begin.' : s.pages ? `Ready, ${s.pages} pages indexed` : 'No files yet. Upload your notes to begin.';
+  const ready = !!(s && s.pages);
+  $('q').disabled = $('send').disabled = !ready;
+  $('summaryBtn').disabled = !ready || state.summaryBusy;
+  $('drop').style.opacity = s ? 1 : .5;
+  $('file').disabled = !s;
+}
+
+async function refresh(selectId) {
+  state.subjects = await api('/api/subjects');
+  state.sid = selectId || state.sid || localStorage.getItem('sid');
+  if (!state.subjects.find(s => s.id === state.sid)) state.sid = state.subjects[0]?.id || null;
+  if (state.sid) localStorage.setItem('sid', state.sid);
+  renderSide();
+}
+
+$('subject').addEventListener('change', e => { state.sid = e.target.value; localStorage.setItem('sid', state.sid); closeViewer(); renderSide(); renderEmpty(); });
+$('newBtn').onclick = () => { $('newForm').hidden = !$('newForm').hidden; if (!$('newForm').hidden) $('newName').focus(); };
+$('newForm').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    const s = await api('/api/subjects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: $('newName').value }) });
+    $('newName').value = ''; $('newForm').hidden = true;
+    await refresh(s.id); closeViewer(); renderEmpty();
+  } catch (err) { $('status').textContent = err.message; }
+};
+
+async function upload(fileList) {
+  if (!state.sid || !fileList.length) return;
+  const fd = new FormData();
+  for (const f of fileList) fd.append('files', f);
+  $('status').className = 'status'; $('status').textContent = 'Reading and indexing your files...';
+  try {
+    await api(`/api/subjects/${state.sid}/upload`, { method: 'POST', body: fd });
+    await refresh(state.sid); renderEmpty();
+  } catch (err) { $('status').textContent = err.message; }
+  $('file').value = '';
+}
+$('file').onchange = e => upload(e.target.files);
+async function downloadSummary() {
+  const sid = state.sid;
+  const subject = state.subjects.find(item => item.id === sid);
+  if (!sid || !subject || state.summaryBusy) return;
+  state.summaryBusy = true;
+  renderSide();
+  $('status').textContent = 'Identifying important topics and definitions...';
+  let completionMessage;
+  try {
+    const response = await fetch(`/api/subjects/${encodeURIComponent(sid)}/summary`, { method: 'POST' });
+    if (!response.ok) {
+      let message = response.statusText;
+      try { message = (await response.json()).detail || message; } catch (_) {}
+      throw new Error(message);
+    }
+    const pdf = await response.blob();
+    const url = URL.createObjectURL(pdf);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${subject.id}-one-page-summary.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    completionMessage = 'One-page summary downloaded.';
+  } catch (err) {
+    completionMessage = `Summary failed: ${err.message}`;
+  } finally {
+    state.summaryBusy = false;
+    renderSide();
+    if (completionMessage) $('status').textContent = completionMessage;
+  }
+}
+$('summaryBtn').addEventListener('click', downloadSummary);
+const drop = $('drop');
+['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => upload(e.dataTransfer.files));
+
+async function ask(question, contextQuestion = null) {
+  const sid = state.sid;
+  addMsg('user', esc(question));
+  const wait = addMsg('bot', '<p>Searching your notes...</p>');
+  try {
+    const r = await api('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject_id: sid, question, context_question: contextQuestion }) });
+    if (state.sid !== sid) return;
+    if (r.refused) {
+      wait.className = 'msg bot refusal';
+      wait.innerHTML = `<p><b>Not in your material.</b></p><p>${esc(r.answer)}</p>`;
+    } else {
+      const nums = new Set(r.sources.map(s => s.n));
+      wait.__src = Object.fromEntries(r.sources.map(s => [s.n, {...s, sid}]));
+      wait.__question = question;
+      wait.__followUps = r.follow_ups || [];
+      wait.__quiz = r.quiz;
+      const suggestions = (r.follow_ups || []).map((text, i) =>
+        `<button type="button" data-followup-index="${i}">${esc(text)}</button>`).join('');
+      const quiz = r.quiz ? `<section class="quiz" aria-label="Quick quiz">
+        <h4>Quick quiz</h4><p>${esc(r.quiz.question)}</p>
+        <div class="quiz-options">${r.quiz.options.map((option, i) =>
+          `<button type="button" class="quiz-option" data-choice="${i}">${esc(option)}</button>`).join('')}</div>
+        <p class="quiz-feedback" aria-live="polite"></p>
+      </section>` : '';
+      const setupNote = r.mode === 'extractive'
+        ? '<p class="interaction-note">Connect a model to enable step-by-step explanations and note-based quizzes.</p>'
+        : '';
+      wait.innerHTML = md(r.answer, nums) + `<div class="cites">${r.sources.map(s =>
+        `<button type="button" class="chip" data-n="${s.n}">${esc(s.file)}, ${unit(s)} ${s.page}</button>`).join('')}</div>
+        <div class="interactions"><h4>Keep exploring</h4><div class="followups">${suggestions}</div>
+        ${quiz}${setupNote}</div>`;
+    }
+  } catch (err) { wait.innerHTML = `<p>${esc(err.message)}</p>`; }
+  $('log').scrollTop = $('log').scrollHeight;
+}
+$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (!q) return; $('q').value = ''; ask(q); };
+$('log').addEventListener('click', e => {
+  const eg = e.target.closest('.eg button');
+  if (eg) return ask(eg.textContent);
+  const followUp = e.target.closest('[data-followup-index]');
+  if (followUp) {
+    const msg = followUp.closest('.msg');
+    const suggestion = msg && msg.__followUps && msg.__followUps[Number(followUp.dataset.followupIndex)];
+    if (suggestion && msg.__question) ask(suggestion, msg.__question);
+    return;
+  }
+  const option = e.target.closest('.quiz-option');
+  if (option) {
+    const quiz = option.closest('.quiz');
+    const msg = quiz && quiz.closest('.msg');
+    if (!quiz || !msg || !msg.__quiz || quiz.dataset.answered) return;
+    quiz.dataset.answered = 'true';
+    const selected = Number(option.dataset.choice);
+    const correct = msg.__quiz.answer_index;
+    quiz.querySelectorAll('.quiz-option').forEach(button => {
+      button.disabled = true;
+      if (Number(button.dataset.choice) === correct) button.classList.add('correct');
+    });
+    const isCorrect = selected === correct;
+    if (!isCorrect) option.classList.add('incorrect');
+    const nums = new Set(Object.keys(msg.__src || {}).map(Number));
+    quiz.querySelector('.quiz-feedback').innerHTML =
+      `<strong>${isCorrect ? 'Correct!' : 'Not quite.'}</strong> ${md(msg.__quiz.explanation, nums)}`;
+    return;
+  }
+  const t = e.target.closest('[data-n]'); if (!t) return;
+  const msg = t.closest('.msg'); const src = msg && msg.__src && msg.__src[t.dataset.n];
+  if (src) openSource(src);
+});
+
+async function openSource(s) {
+  const url = `/files/${s.sid}/${encodeURIComponent(s.file)}`;
+  document.body.classList.add('panel-open');
+  $('vtitle').textContent = `${s.file}, ${s.type === 'pptx' ? 'slide' : 'page'} ${s.page}`;
+  $('vopen').href = s.type === 'pdf' ? `${url}#page=${s.page}` : url;
+  const ex = $('vexcerpt'); ex.hidden = false; ex.textContent = s.snippet;
+  const body = $('vbody');
+  if (s.type === 'pdf') {
+    body.innerHTML = '';
+    const f = document.createElement('iframe');
+    f.title = `${s.file} page ${s.page}`;
+    f.src = `${url}?v=${Date.now()}#page=${s.page}`;
+    body.appendChild(f);
+  } else {
+    try {
+      const p = await api(`/api/subjects/${s.sid}/page?file=${encodeURIComponent(s.file)}&page=${s.page}`);
+      body.innerHTML = `<div class="slide">${esc(p.text)}</div>`;
+    } catch (err) { body.textContent = err.message; }
+  }
+  $('vclose').focus();
+}
+function closeViewer() { document.body.classList.remove('panel-open'); $('vbody').innerHTML = ''; }
+$('vclose').onclick = closeViewer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+
+$('demo').onclick = async () => {
+  $('demo').disabled = true;
+  try {
+    const s = await api('/api/demo', {method: 'POST'});
+    await refresh(s.id); closeViewer(); renderEmpty();
+  } catch (err) { $('status').textContent = err.message; }
+  finally { $('demo').disabled = false; }
+};
+refresh().then(renderEmpty).catch(err => { $('status').textContent = err.message; });
+</script>
+</body>
+</html>
